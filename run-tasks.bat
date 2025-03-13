@@ -14,7 +14,7 @@ if exist "!MINIFORGE3_PATH!/Scripts/activate.bat" (
     ) else (
         echo Miniforge3 wdttc environment not found. Please create it first.
         pause
-        exit
+        exit /b %errorlevel%
     )
 )
 
@@ -24,7 +24,7 @@ if %errorlevel% neq 0 (
     echo "Python is not installed. Please install Python first (miniforge3, choco, standalone)."
     echo !MINIFORGE3_PATH!/Scripts/activate.bat
     pause
-    exit
+    exit /b %errorlevel%
 )
 
 :: If run without arguments, ask it
@@ -59,7 +59,7 @@ if "!MyChoice!" == "Startup" (
     pause
     powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%userprofile%\Start Menu\Programs\Startup\%~n0.lnk');$s.TargetPath='%~f0';$s.WorkingDirectory='%~dp0';$s.Arguments='Icon';$s.Save()"
   )
-  exit
+  exit /b %errorlevel%
 )
 
 echo .
@@ -71,13 +71,13 @@ timeout /t !TASK_WAIT_TIMEOUT!
 :: Icon
 if "!MyChoice!"=="Icon" ( 
   python src/runtrayicon.py
-  exit
+  exit /b %errorlevel%
 )
 :: Language
 if "!MyChoice!"=="Language" ( 
   python src/taskslocales.py
   pause
-  exit
+  exit /b %errorlevel%
 )
 
 :: run the task
