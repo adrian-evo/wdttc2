@@ -1,0 +1,22 @@
+name: wdttc
+channels:
+  # Define conda channels here. 
+  - conda-forge
+
+dependencies:
+  # Define conda packages here. 
+  # If available, always prefer the conda version of a package, installation will be faster and more efficient.
+  # https://anaconda.org/search  
+  #- nodejs=20.*
+  - python=3.12
+  - pip
+  
+  - pip:
+    # Define pip packages here. 
+    # https://pypi.org/
+    - playwright
+    - openpyxl
+    - pystray
+    - psutil
+    - keyring
+    - requests
