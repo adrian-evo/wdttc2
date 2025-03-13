@@ -14,8 +14,7 @@ import subprocess
 from datetime import datetime, timedelta
 import psutil
 from taskslocales import _
-import overtimemenu
-import aboutaction
+import importlib.util
 
 # icon data
 icon_size = (48, 48)
@@ -46,7 +45,6 @@ class WorkdayTrayIcon:
         self.break_active = False
 
         # is overtime menu visible or active
-        self.overtime_visible = overtimemenu.overtime_menu_item_visible
         self.overtime_active = False
 
         self.exit_event = None
@@ -182,7 +180,7 @@ class WorkdayTrayIcon:
             self.update_image(checkout_time, data['ICON_DATA']['OVERTIME_STARTED_COLOR'])
 
         if self.overtime_active:
-            self.update_image(checkout_time, overtimemenu.overtime_checked_color)
+            self.update_image(checkout_time, self.overtime_checked_color)
 
         # execute a custom action when overtime starts
         if self.overtime_active and timenow > checkout_calc:
@@ -298,9 +296,29 @@ if __name__ == '__main__':
     with open(vault, 'w') as f:
         json.dump(data, f, ensure_ascii=True, indent=4)
 
+    # read the custom module names from the env.json file and import them
+    parent_dir = os.path.dirname(os.path.dirname(__file__))
+    with open(os.path.join(parent_dir, 'devdata/env.json')) as f:
+        envdata = json.load(f)
+    about = envdata['ABOUT_ACTION']
+    overtime = envdata['OVERTIME_MENU']
+    about_module_path = os.path.join(parent_dir, 'src', f"{about}.py")
+    overtime_module_path = os.path.join(parent_dir, 'src', f"{overtime}.py")
+
+    spec = importlib.util.spec_from_file_location(about, about_module_path)
+    about_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(about_module)
+
+    spec = importlib.util.spec_from_file_location(overtime, overtime_module_path)
+    overtime_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(overtime_module)
+
     # create workday tray icon instance
-    WorkdayTrayIcon.overtime_custom_action = overtimemenu.overtime_custom_action
-    WorkdayTrayIcon.check_release = aboutaction.check_release
-    WorkdayTrayIcon.about_action = aboutaction.about_action
+    WorkdayTrayIcon.check_release = about_module.check_release
+    WorkdayTrayIcon.about_action = about_module.about_action
+    WorkdayTrayIcon.overtime_visible = overtime_module.overtime_menu_item_visible
+    WorkdayTrayIcon.overtime_checked_color = overtime_module.overtime_checked_color
+    WorkdayTrayIcon.overtime_custom_action = overtime_module.overtime_custom_action
+    
     WorkdayTrayIcon.instance = WorkdayTrayIcon(vault)
     WorkdayTrayIcon.instance.create_icon()

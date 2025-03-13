@@ -27,11 +27,11 @@ if exist "!MINIFORGE3_PATH!/envs/wdttc" (
 ) 
 
 echo .
-echo Creating Miniforge3 wdttc environment from miniforge.yml. Close window to cancel.
+echo Creating Miniforge3 wdttc environment from !MINIFORGE3_CONFIG!. Close window to cancel.
 echo .
 pause
 
-call conda env create -f miniforge.yml
+call conda env create -f !MINIFORGE3_CONFIG!
 call conda env list
 call conda activate wdttc
 pip list
