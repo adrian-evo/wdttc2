@@ -3,18 +3,21 @@ Provides translation service to tray icon and tasks.py file
 """
 import os
 import gettext
-from runtrayicon import set_locale_from_vault_file
+import json
+from devdata_path import *
 
 class Translation:
     def __init__(self):
-        set_locale_from_vault_file()
         self.template = None
         self.custom = None
         
     def get(self, text):
         # load translations only once
         if self.template is None:
-            locale = os.getenv('LANG', 'en')
+            # read locale from env.json
+            with open(devdata_path('env.json')) as f:
+                data = json.load(f)
+            locale = data['LOCALE']
             path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'locales')
             self.template = gettext.translation('template', localedir=path, languages=[locale])
             # custom translations are optional
@@ -46,9 +49,7 @@ def retrieve_username(system):
 def retrieve_password(system, username):
     return keyring.get_password(system, username)
 
-
-# running this file will regenerate the locales
-if __name__ == '__main__':
+def main():
     import subprocess
     import sys
     from pathlib import Path
@@ -73,3 +74,7 @@ if __name__ == '__main__':
     subprocess.run(["python", msgfmt, path_de + 'template.po'])
 
     print('done')
+
+# running this file will regenerate the locales
+if __name__ == '__main__':
+    main()

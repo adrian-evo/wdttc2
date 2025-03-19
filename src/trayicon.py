@@ -10,11 +10,25 @@ import pystray
 from pystray import Menu, MenuItem
 from PIL import Image, ImageDraw,ImageFont
 import os, sys, json
+from os.path import exists
 import subprocess
 from datetime import datetime, timedelta
 import psutil
 from taskslocales import _
-import importlib.util
+from devdata_path import *
+
+# Determine if running as PyInstaller bundle
+if getattr(sys, 'frozen', False):
+    # If running as PyInstaller bundle
+    application_path = sys._MEIPASS
+else:
+    # If running as script
+    application_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Add plugins directory to path
+#plugins_path = os.path.join(application_path, 'plugins')
+sys.path.append(application_path)
+from plugins import aboutaction, overtimemenu
 
 # icon data
 icon_size = (48, 48)
@@ -265,21 +279,23 @@ class WorkdayTrayIcon:
         ret = ctypes.windll.user32.MessageBoxExW(None, _("This action will reset to default all [OUTPUT] related data in your vault file! \n Continue?"), _("Reset Warning"), 4 | 48 | mb_topmost_flag)
 
         if ret == 6:
+            with open(self.vault) as f:
+                data = json.load(f)
             data['OUTPUT']['CUMULATED_OVER_UNDER_TIME'] = ''
             data['OUTPUT']['CHECKIN_DATE'] = ''
             data['OUTPUT']['CHECKOUT_CALC_DATE'] = ''
             data['OUTPUT']['BREAK_TIME_TODAY'] = ''
-            
             with open(self.vault, 'w') as f:
                 json.dump(data, f, ensure_ascii=True, indent=4)
 
 
-if __name__ == '__main__':
-    assert len(sys.argv) == 2
+def main(arg):
     # vault file given as argument
-    vault = sys.argv[1]
+    vault = devdata_path(arg)
+    print(vault)
 
     # save own process pid
+    assert exists(vault)
     with open(vault) as f:
         data = json.load(f)
 
@@ -296,29 +312,20 @@ if __name__ == '__main__':
     with open(vault, 'w') as f:
         json.dump(data, f, ensure_ascii=True, indent=4)
 
-    # read the custom module names from the env.json file and import them
-    parent_dir = os.path.dirname(os.path.dirname(__file__))
-    with open(os.path.join(parent_dir, 'devdata/env.json')) as f:
-        envdata = json.load(f)
-    about = envdata['ABOUT_ACTION']
-    overtime = envdata['OVERTIME_MENU']
-    about_module_path = os.path.join(parent_dir, 'src', f"{about}.py")
-    overtime_module_path = os.path.join(parent_dir, 'src', f"{overtime}.py")
-
-    spec = importlib.util.spec_from_file_location(about, about_module_path)
-    about_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(about_module)
-
-    spec = importlib.util.spec_from_file_location(overtime, overtime_module_path)
-    overtime_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(overtime_module)
-
     # create workday tray icon instance
-    WorkdayTrayIcon.check_release = about_module.check_release
-    WorkdayTrayIcon.about_action = about_module.about_action
-    WorkdayTrayIcon.overtime_visible = overtime_module.overtime_menu_item_visible
-    WorkdayTrayIcon.overtime_checked_color = overtime_module.overtime_checked_color
-    WorkdayTrayIcon.overtime_custom_action = overtime_module.overtime_custom_action
+    WorkdayTrayIcon.check_release = aboutaction.check_release
+    WorkdayTrayIcon.about_action = aboutaction.about_action
+    WorkdayTrayIcon.overtime_visible = overtimemenu.overtime_menu_item_visible
+    WorkdayTrayIcon.overtime_checked_color = overtimemenu.overtime_checked_color
+    WorkdayTrayIcon.overtime_custom_action = overtimemenu.overtime_custom_action
     
     WorkdayTrayIcon.instance = WorkdayTrayIcon(vault)
     WorkdayTrayIcon.instance.create_icon()
+
+
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) < 2:
+        print('No vault.json was specified.')
+        sys.exit(1)
+    main(sys.argv[1])

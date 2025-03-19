@@ -38,9 +38,9 @@ The following customizations from *vault.json* file are useful for this level:
 
 Depending of the "APP_KEYWORDS" entry from *devdata/env.json* file, and thus the *\*keywords.py* file taken into use, on the second level the "*Check In*" and "*Check Out*" tasks will open either a web application either an excel file.
 
-**url_keywords.py** 
+**URL Keywords** 
 
-If you are interested to open a web application, do the following:
+Start with a copy of *url_keywords.py* with the name *cust_keywords.py*, then edit the keyword _Fill Checkin Credentials_ with own HTML selectors as needed by Playwright libraries. By default, you can run it as it is with sample URLs.
 
 1. Open your *vault.json* file and enable 
 
@@ -83,11 +83,9 @@ See this section for details about [how to store the credentials in the specific
 
 In this case, when executing any of the "*Check in*", "*Check out*" or "*Custom*" tasks, your defined web applications will be opened instead, but obviously without credential filling.
 
-**xls_keywords.py** 
+**XLS Keywords** 
 
-If you are interested to open or edit an excel file instead of a web application on step 2, edit "APP_KEYWORDS" to use *xls_keywords.py*.
-
-Then open your *vault.json* file and edit the following:
+If you are interested to open or edit an excel file, the default *cust_keywords.py*, contains a default implementation for this. Adjust the implementation as needed. Then open your *vault.json* file and edit the following:
 
 "MY_DATA":
 
@@ -96,21 +94,18 @@ Then open your *vault.json* file and edit the following:
 
 The file will be created automatically if not exists, or it must be an empty excel file that you want to use to record checkin / checkout times. When actions level is enabled, these will be filled automatically in the excel file without starting the Excel application.
 
-**app_keywords_comp.py**
+**Company keywords**
 
-If you want to use a custom company keyword file, then edit "APP_KEYWORDS" to use such file and then do the same steps as above. This file should provide a particular custom checkin / checkout solution or similar for a particular company, or for certain internal system or application, case by case. This file will be usually accompanied by a custom *vault-comp.json*, which means also "VAULT_FILE" should be edited to use this file instead, e.g.:
+Start with a copy of *url_keywords.py* with the name *cust_keywords.py*, then edit the keyword _Fill Checkin Credentials_ with own HTML selectors as needed by Playwright libraries. This file should provide a particular custom checkin / checkout solution or similar for a particular company, or for certain internal system or application, case by case. This file will be usually accompanied by a custom *vault-comp.json*, which means also "VAULT_FILE" could be edited to use this file instead, e.g.:
 
     "VAULT_FILE": "devdata/vault-comp.json",
     "LOCALE": "de",
-    "APP_KEYWORDS": "app_keywords_comp"
-
-Start with a copy of *url_keywords.py* with the name *app_keywords_comp.py* or similar, then edit the keyword _Fill Checkin Credentials_ with own HTML selectors as needed by Playwright libraries.
 
 ## Actions level
 
-The third level might be a little bit more complex, and depending of the specific application might require more complex modifications on the *keywords.py* file so that to be able to automatize the actual actions that otherwise are expected to be done manually on the second level.
+The third level might be a little bit more complex, and depending of the specific application might require more complex modifications on the *cust_keywords.py* file so that to be able to automatize the actual actions that otherwise are expected to be done manually on the second level.
 
-However, using *xls_keywords.py* works out of the box, and when this level is enabled, the checkin / checkout times will be filled automatically in the excel file without starting the Excel application.
+However, using the included _cust_keywords.py_ works out of the box, and when this level is enabled, the checkin / checkout times will be filled automatically in the excel file without starting the Excel application.
 
 1. To enable this level, open your *vault.json* file and enable 
 

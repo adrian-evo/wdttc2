@@ -30,6 +30,8 @@ class CustomKeywords:
                 _('Please record the time and then press OK to continue')
             )
         self.close_checkin_app()
+        # Return true when checkin was performed, otherwise false
+        return True
 
     def check_out_app_task(self):
         """Check out App task"""
@@ -46,6 +48,8 @@ class CustomKeywords:
                 _('Please record the time and then press OK to continue')
             )
         self.close_checkin_app()
+        # Return true when checkout was performed, otherwise false
+        return True
 
     def verify_app_task(self):
         """Verify App task"""

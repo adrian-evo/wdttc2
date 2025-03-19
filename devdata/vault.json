@@ -3,20 +3,20 @@
         "SILENT_RUN": false
     },
     "LEVEL_2_ACTIONS": {
-        "OPEN_CHECKIN_APP": false,
-        "OPEN_CHECKOUT_APP": false,
-        "OPEN_CUSTOM_APP": false
+        "OPEN_CHECKIN_APP": true,
+        "OPEN_CHECKOUT_APP": true,
+        "OPEN_CUSTOM_APP": true
     },
     "LEVEL_3_ACTIONS": {
-        "DO_CHECKIN_ACTION": false,
-        "DO_CHECKOUT_ACTION": false,
-        "DO_CUSTOM_ACTION": false
+        "DO_CHECKIN_ACTION": true,
+        "DO_CHECKOUT_ACTION": true,
+        "DO_CUSTOM_ACTION": true
     },
     "MY_DATA": {
         "STANDARD_WORKING_TIME": "8 hours 30 minutes",
         "CHECKIN": {
             "URL": "https://mail.yahoo.com",
-            "XLS": "C:/Data/checkin.xlsx",
+            "XLS": "logging.xlsx",
             "SYSTEM": "Checkin",
             "USER": "user1",
             "PASSWORD": "pass123"

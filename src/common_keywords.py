@@ -9,13 +9,13 @@ from os.path import exists
 import re
 from taskslocales import *
 from taskslocales import _
+from devdata_path import *
 
 class CommonKeywords:
     def __init__(self):
-        path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'devdata/env.json')
-        with open(path) as f:
+        with open(devdata_path('env.json')) as f:
             data = json.load(f)
-        self.vault = data['VAULT_FILE']
+        self.vault = devdata_path(data['VAULT_FILE'])
         assert exists(self.vault)
 
     def load_vault_file(self):
@@ -110,7 +110,11 @@ class CommonKeywords:
             if cumulated[0] == '-':
                 cumulated_seconds = -self.parse_duration(cumulated[1:]).total_seconds()
             else:
-                cumulated_seconds = self.parse_duration(cumulated).total_seconds()
+                try:
+                    cumulated_seconds = self.parse_duration(cumulated).total_seconds()
+                except ValueError:
+                    cumulated_seconds = 0
+                    print("The ['OUTPUT']['CUMULATED_OVER_UNDER_TIME'] should be in the format 'x days, hh:mm:ss' or 'hh:mm:ss'.")
             total_wt_diff = cumulated_seconds + today_wt_diff
         else:
             total_wt_diff = today_wt_diff

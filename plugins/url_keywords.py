@@ -21,15 +21,19 @@ class CustomKeywords:
         self.fill_checkin_credentials()
 
         env = self.common.load_vault_file()
+        checkin_done = True
         if env['LEVEL_3_ACTIONS']['DO_CHECKIN_ACTION']:
             self.common.pause_execution(
                 _('Automatic check in action was not implemented.')
             )
+            checkin_done = False
         else:
             self.common.pause_execution(
                 _('Please click [Check In] button and then press OK to continue.')
             )
         self.close_checkin_app()
+        # Return true when checkin was performed, otherwise false
+        return checkin_done
 
     def check_out_app_task(self):
         """Check out App task"""
@@ -37,15 +41,19 @@ class CustomKeywords:
         self.fill_checkin_credentials()
 
         env = self.common.load_vault_file()
+        checkout_done = True
         if env['LEVEL_3_ACTIONS']['DO_CHECKOUT_ACTION']:
             self.common.pause_execution(
                 _('Automatic check out action was not implemented.')
             )
+            checkout_done = False
         else:
             self.common.pause_execution(
                 _('Please click [Check Out] button and then press OK to continue.')
             )
         self.close_checkin_app()
+        # Return true when checkout was performed, otherwise false
+        return checkout_done
 
     def verify_app_task(self):
         """Verify App task"""

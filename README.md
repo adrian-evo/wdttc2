@@ -45,18 +45,15 @@ Detached concept run means that the solution is totally independent of any conti
 	"LOCALE": currently two languages are included, "en" for English and "de" for German. The language
 	files are under "locales" folder and can be customized.
 
-	"APP_KEYWORDS": specific "*keywords.py"" file from _src_ folder, that is used to launch the applications and
-	the actions, when enabled on the second and third level.
-
 	"MINIFORGE3_PATH": the local path to Miniforge3 installation, if Miniforge3 is used as Python environment (recommended)
 
 	"TASK_WAIT_TIMEOUT": timeout in seconds to wait before the task in command prompt will be executed.
 
-As an example, this solution includes two APP_KEYWORDS files. Any of them can be used as a template to be customised for a particular company system, for certain internal system or application, case by case. These files are not used on first level, thus can be ignored initially.
+**plugins**
+As an example, this solution includes two custom keywords files. Any of them can be used as a template to be customised for a particular company system, for certain internal system or application, case by case. These files are not used on first level, thus can be ignored initially.
 
-- *url_keywords.py* to be used for opening a web application
-- *xls_keywords.py* to be used for opening or editing an excel file
-
+- *cust_keywords.py* default to be used for opening or editing an excel file
+- *url_keywords.py* to be used for opening a web application. Rename as *cust_keywords.py* to this into use instead of default one.
 
 ## QuickStart 
 

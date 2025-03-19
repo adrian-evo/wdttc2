@@ -4,24 +4,31 @@ Start and end of working day with Check in and out and Custom task actions
 from datetime import datetime, timedelta
 from time import sleep
 import json
-import importlib.util
 from taskslocales import _
 from common_keywords import *
+from devdata_path import *
+
+# Determine if running as PyInstaller bundle
+if getattr(sys, 'frozen', False):
+    # If running as PyInstaller bundle
+    application_path = sys._MEIPASS
+else:
+    # If running as script
+    application_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Add plugins directory to path
+#plugins_path = os.path.join(application_path, 'plugins')
+sys.path.append(application_path)
+
+from plugins import cust_keywords
 
 class WorkdayTasks:
     def __init__(self):
         # read the keywords from the env.json file
-        parent_dir = os.path.dirname(os.path.dirname(__file__))
-        with open(os.path.join(parent_dir, 'devdata/env.json')) as f:
+        with open(devdata_path('env.json')) as f:
             envdata = json.load(f)
-        keywords = envdata['APP_KEYWORDS']
-        module_path = os.path.join(parent_dir, 'src', f"{keywords}.py")
 
-        spec = importlib.util.spec_from_file_location(keywords, module_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-
-        self.keywords = module.CustomKeywords()
+        self.keywords = cust_keywords.CustomKeywords()
         self.common = CommonKeywords()
 
     def workday_check_in(self):
@@ -29,19 +36,21 @@ class WorkdayTasks:
         env = self.common.load_vault_file()
 
         # Verify and perform check-in
+        checkin_done = True
         if env['LEVEL_2_ACTIONS']['OPEN_CHECKIN_APP']:
-            self.keywords.check_in_app_task()
+            checkin_done = self.keywords.check_in_app_task()
 
-        # Save current check-in date and time
-        date_now = datetime.now()
-        # remove microseconds
-        date_now -= timedelta(microseconds=date_now.microsecond)
-        env['OUTPUT']['CHECKIN_DATE'] = date_now.isoformat(sep=' ')
+        if checkin_done:        
+            # Save current check-in date and time
+            date_now = datetime.now()
+            # remove microseconds
+            date_now -= timedelta(microseconds=date_now.microsecond)
+            env['OUTPUT']['CHECKIN_DATE'] = date_now.isoformat(sep=' ')
 
-        # Calculate and save check-out time
-        date_out = date_now + self.common.parse_duration(env['MY_DATA']['STANDARD_WORKING_TIME'])
-        env['OUTPUT']['CHECKOUT_CALC_DATE'] = date_out.isoformat(sep=' ')
-        self.common.save_vault_file(env)
+            # Calculate and save check-out time
+            date_out = date_now + self.common.parse_duration(env['MY_DATA']['STANDARD_WORKING_TIME'])
+            env['OUTPUT']['CHECKOUT_CALC_DATE'] = date_out.isoformat(sep=' ')
+            self.common.save_vault_file(env)
 
         # Welcome message
         if not env['LEVEL_1_ACTIONS']['SILENT_RUN']:
@@ -139,18 +148,25 @@ class WorkdayTasks:
             self.keywords.custom_app_task()
 
 
-# tasks called from command line
-if __name__ == '__main__':
-    import sys
+def main(arg):
     tasks = WorkdayTasks()
-    if sys.argv[1] == 'In':
+    if arg == 'In':
         tasks.workday_check_in()
         #tasks.custom_task()
-    elif sys.argv[1] == 'Out':
+    elif arg == 'Out':
         tasks.workday_check_out()
-    elif sys.argv[1] == 'Verify':
+    elif arg == 'Verify':
         tasks.workday_verify()
-    elif sys.argv[1] == 'Custom':
+    elif arg == 'Custom':
         tasks.custom_task()
     else:
         print('Invalid argument. Please use In, Out, Verify or Custom.')
+
+
+# tasks called from command line
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) < 2:
+        print('No task to run was specified.')
+        sys.exit(1)
+    main(sys.argv[1])

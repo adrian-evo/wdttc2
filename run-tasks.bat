@@ -6,6 +6,13 @@ setlocal EnableDelayedExpansion
 :: Read environment variables from devdata\env.json
 call tools\get-env-vars.bat
 
+:: If standalone exe exists, skip miniforge3 environment setup
+if exist "wdttc.exe" (
+    echo Using standalone executable
+    set TASK_WAIT_TIMEOUT=0
+    goto STANDALONE
+)
+
 :: activate miniforge3 environment if available
 if exist "!MINIFORGE3_PATH!/Scripts/activate.bat" (
     if exist "!MINIFORGE3_PATH!/envs/wdttc" (
@@ -26,6 +33,9 @@ if %errorlevel% neq 0 (
     pause
     exit /b %errorlevel%
 )
+
+:: If standalone exe exists, skip miniforge3 environment setup
+:STANDALONE
 
 :: If run without arguments, ask it
 :ASK
@@ -70,15 +80,27 @@ timeout /t !TASK_WAIT_TIMEOUT!
 
 :: Icon
 if "!MyChoice!"=="Icon" ( 
-  python src/runtrayicon.py
+  if exist "wdttc.exe" (
+    wdttc.exe runtrayicon
+  ) else (
+    python src/runtrayicon.py
+  )
   exit /b %errorlevel%
 )
 :: Language
 if "!MyChoice!"=="Language" ( 
-  python src/taskslocales.py
+  if exist "wdttc.exe" (
+    wdttc.exe taskslocales
+  ) else (
+    python src/taskslocales.py
+  )
   pause
   exit /b %errorlevel%
 )
 
 :: run the task
-python src/tasks.py !MyChoice!
+if exist "wdttc.exe" (
+    wdttc.exe tasks !MyChoice!
+) else (
+  python src/tasks.py !MyChoice!
+)

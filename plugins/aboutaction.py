@@ -5,6 +5,7 @@ import requests
 import json
 import os
 from taskslocales import _
+from devdata_path import *
 
 project_url = 'https://github.com/adrian-evo/workday-tasks-time-control'
 api_url = f'https://api.github.com/repos/adrian-evo/workday-tasks-time-control/releases'
@@ -21,9 +22,8 @@ def about_action(self):
         ctypes.windll.user32.MessageBoxExW(None, msg, _("About"), 0 | 64 | mb_topmost_flag)
 
 def check_release(self):
-    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'devdata/env.json')
     # actual version from json
-    with open(path) as f:
+    with open(devdata_path('env.json')) as f:
         envdata = json.load(f)
     version = envdata['RELEASE']
     actual_version = int(''.join([i for i in version if i.isdigit()]))

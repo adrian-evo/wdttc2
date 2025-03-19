@@ -17,3 +17,5 @@ overtimemenu-my*.py
 settings.ini
 repository*.png
 local/
+tools/build/
+tools/dist/
