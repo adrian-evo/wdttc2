@@ -29,8 +29,13 @@ def main():
         arg = sys.argv[1]
     with open(devdata_path('env.json')) as f:
         envdata = json.load(f)
-    sleep_time = envdata['TASK_WAIT_TIMEOUT']   
-    print("The [%s] task will be executed in %s seconds... Close the window to cancel." % (arg, sleep_time))
+    sleep_time = envdata['TASK_WAIT_TIMEOUT']
+
+    if len(sys.argv) > 2:
+        msg = '[%s %s]' % (arg, sys.argv[2])
+    else:
+        msg = '[%s]' % arg
+    print("The %s task will be executed in %s seconds... Close the window to cancel." % (msg, sleep_time))
     for i in range(sleep_time,0,-1):
         print(f"{i}", end="\r", flush=True)
         sleep(1)
