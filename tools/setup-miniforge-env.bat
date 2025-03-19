@@ -31,7 +31,7 @@ echo Creating Miniforge3 wdttc environment from plugins/miniforge.yml file. Clos
 echo .
 pause
 
-call conda env create -f plugins/miniforge.yml
+call conda env create -f ../plugins/miniforge.yml
 call conda env list
 call conda activate wdttc
 pip list

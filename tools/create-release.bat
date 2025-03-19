@@ -2,11 +2,15 @@
 setlocal EnableDelayedExpansion
 
 :: Read environment variables from devdata\env.json
-move /Y ..\devdata\env.json ..\devdata\env.json.bak
-move /Y  ..\devdata\env-dev.json ..\devdata\env.json
+if exist ..\devdata\env-dev.json (
+    move /Y ..\devdata\env.json ..\devdata\env.json.bak
+    move /Y  ..\devdata\env-dev.json ..\devdata\env.json
+)
 call get-env-vars.bat
-move /Y ..\devdata\env.json ..\devdata\env-dev.json
-move /Y  ..\devdata\env.json.bak ..\devdata\env.json
+if exist ..\devdata\env.json.bak (
+    move /Y ..\devdata\env.json ..\devdata\env-dev.json
+    move /Y  ..\devdata\env.json.bak ..\devdata\env.json
+)
 
 :: activate miniforge3 environment if available
 if exist "!MINIFORGE3_PATH!/Scripts/activate.bat" (
@@ -47,6 +51,7 @@ if !errorlevel! == 1 (
 pyinstaller wdttc.spec
 
 copy ..\run-tasks.bat dist\wdttc
+if exist ..\setup-wdttc.bat copy ..\setup-wdttc.bat dist\wdttc
 mkdir dist\wdttc\locales
 xcopy /s /i ..\locales dist\wdttc\locales
 mkdir dist\wdttc\devdata
