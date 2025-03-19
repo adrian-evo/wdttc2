@@ -18,4 +18,6 @@ settings.ini
 repository*.png
 local/
 tools/build/
-tools/dist/
+tools/dist/*
+!tools/dist/standalone-wdttc.zip
+devdata/env-dev.json

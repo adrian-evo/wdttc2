@@ -7,8 +7,8 @@ import os
 from taskslocales import _
 from devdata_path import *
 
-project_url = 'https://github.com/adrian-evo/workday-tasks-time-control'
-api_url = f'https://api.github.com/repos/adrian-evo/workday-tasks-time-control/releases'
+project_url = 'https://github.com/adrian-evo/wdttc2'
+api_url = f'https://github.com/adrian-evo/wdttc2/releases'
 
 def about_action(self):
     import ctypes
@@ -44,13 +44,9 @@ def check_release(self):
         #print(f'Actual version: {actual_version}, New version: {new_version}, Description: {description}, Released at: {released_at}')
         return actual_version, new_version, description, released_at
 
-    except requests.exceptions.HTTPError as err:
-        print(f'HTTP error occcurred: {err}')
+    except:
+        print(f"Cannot check the latest release from {api_url}")
         return actual_version, 0, '', ''
-    except Exception as e:
-        print(f"Other error occurred: {err}")
-        return actual_version, 0, '', ''
-
 
 if __name__ == '__main__':
     #about_action()

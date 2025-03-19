@@ -12,6 +12,14 @@ This is mostly useful when you are usually starting the workday at flexible, irr
   <img src="./docs/wdttc.png">
 </p>
 
+## Quickstart - Standalone app
+
+The standalone executable is created with Miniforge3, Python 3.12, and packed with PyInstaller. This means it works out of the box, in standalone portable mode, without installing anything on the system.
+
+The easiest way to start with this tool is to download the _**standalone-wdttc.zip**_ from the latest release https://github.com/adrian-evo/wdttc2/releases, extract and double click _**wdttc.exe**_ or run _**run-tasks.bat**_ with _Icon_. Then on Windows make the icon visible in the notification area with *Windows Taskbar settings -> Select which icons appear on the taskbar*. Next, right click on the icon and choose _Check In_, and then verify the generated xlsx file.
+
+**NOTE:** Sometimes downloaded files from the internet are blocked by Windows. If there are errors when running a command below, try first to open the Properties of the zip file and click _Unblock_ before extracting it.
+
 ## Solution concepts
 
 This is a highly customizable and transparent open-source solution with Python and Playwright libraries for automating web application. It was implemented by using three main concepts: **levels concept**, **check in - check out concept** and **detached concept**. Works on Windows and macOS.
@@ -55,7 +63,7 @@ As an example, this solution includes two custom keywords files. Any of them can
 - *cust_keywords.py* default to be used for opening or editing an excel file
 - *url_keywords.py* to be used for opening a web application. Rename as *cust_keywords.py* to this into use instead of default one.
 
-## QuickStart 
+## Use with Python environment (not standalone)
 
 :arrow_double_down: Download this solution
 > Download the latest version from under the _Releases_ section and then extract it to any local folder.
