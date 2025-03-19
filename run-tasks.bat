@@ -9,8 +9,11 @@ call tools\get-env-vars.bat
 :: If standalone exe exists, skip miniforge3 environment setup
 if exist "wdttc.exe" (
     echo Using standalone executable
+    set launcher=wdttc.exe
     set TASK_WAIT_TIMEOUT=0
     goto STANDALONE
+) else (
+    set launcher=python src/wdttc.py
 )
 
 :: activate miniforge3 environment if available
@@ -80,27 +83,17 @@ timeout /t !TASK_WAIT_TIMEOUT!
 
 :: Icon
 if "!MyChoice!"=="Icon" ( 
-  if exist "wdttc.exe" (
-    wdttc.exe runtrayicon
-  ) else (
-    python src/runtrayicon.py
-  )
+  !launcher! runtrayicon
   exit /b %errorlevel%
 )
 :: Language
 if "!MyChoice!"=="Language" ( 
-  if exist "wdttc.exe" (
-    wdttc.exe taskslocales
-  ) else (
-    python src/taskslocales.py
-  )
+  !launcher! task
   pause
   exit /b %errorlevel%
 )
 
 :: run the task
 if exist "wdttc.exe" (
-    wdttc.exe tasks !MyChoice!
-) else (
-  python src/tasks.py !MyChoice!
+  !launcher! tasks !MyChoice!
 )

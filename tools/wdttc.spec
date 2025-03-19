@@ -13,7 +13,11 @@ a = Analysis(
     ['..\\src\\wdttc.py'],
     pathex=[],
     binaries=[],
-    datas=[('..\\plugins', 'plugins')],
+    datas=[
+        ('..\\plugins', 'plugins'),
+        ('..\\LICENSE', '.'),  # Add LICENSE file
+        ('..\\README.md', '.')  # Add README.md file
+    ],
     hiddenimports=[
         'playwright',
         'playwright.sync_api',
