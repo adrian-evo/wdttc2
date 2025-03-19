@@ -8,7 +8,7 @@ from taskslocales import _
 from devdata_path import *
 
 project_url = 'https://github.com/adrian-evo/wdttc2'
-api_url = f'https://github.com/adrian-evo/wdttc2/releases'
+api_url = f'https://api.github.com/repos/adrian-evo/wdttc2/releases'
 
 def about_action(self):
     import ctypes
