@@ -55,6 +55,9 @@ msgstr "Beginnen Sie morgens bitte mit einer Einchecken Aufgabe."
 msgid "End of the working day"
 msgstr "Ende des Arbeitstages"
 
+msgid "New day started!"
+msgstr "Ein neuer Tag hat begonnen!"
+
 msgid "Break is active for {} hours. Click to deactivate it and to continue working."
 msgstr "Pause ist seit {} Stunden aktiv. Klicken Sie, um es zu deaktivieren und weiterzuarbeiten."
 

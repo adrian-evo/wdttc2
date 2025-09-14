@@ -55,6 +55,9 @@ msgstr ""
 msgid "End of the working day"
 msgstr ""
 
+msgid "New day started!"
+msgstr ""
+
 msgid "Break is active for {} hours. Click to deactivate it and to continue working."
 msgstr ""
 

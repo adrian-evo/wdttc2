@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 import psutil
 from taskslocales import _
 from devdata_path import *
+from common_keywords import *
 
 # Determine if running as PyInstaller bundle
 if getattr(sys, 'frozen', False):
@@ -118,33 +119,47 @@ class WorkdayTrayIcon:
             data = json.load(f)
 
         checkin_str = data['OUTPUT']['CHECKIN_DATE']
+        checkout_str = data['OUTPUT']['CHECKOUT_CALC_DATE']
         # check if it is old format with miliseconds
         if '.' in checkin_str:
             checkin_str = checkin_str.split('.')[0]
+        if '.' in checkout_str:
+            checkout_str = checkout_str.split('.')[0]
         timenow = datetime.now()
 
         # 1. If check-in is empty it means first run. Icon color - RED
         if checkin_str == '':
-            timenow_str = timenow.strftime("%H:%M")
             self.icon.title = _('Welcome!') + ' ' +_('Please start with a Check-in task in the morning.')
-            self.update_image(timenow_str, data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
+            self.update_image(timenow.strftime("%H:%M"), data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
             self.break_enable(False)
             return
 
         # 2. If check-in is 00:00 it means check-out was performed. Icon color - RED
-        if checkin_str == '00:00':
+        # On the same day, display End of the working day. On a new day, display New day started.
+        # On a new day, reset CHECKOUT_CALC_DATE to 00:00, and display a tooltip with New day started only once
+        if checkin_str == '00:00' and checkout_str != '00:00':
             self.icon.title = _('End of the working day')
             self.update_image(checkin_str, data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
+            self.break_enable(False)
+
+            checkout_calc = datetime.strptime(checkout_str, '%Y-%m-%d %H:%M:%S')
+            if timenow.date() > checkout_calc.date():
+                # On a new day, reset the checkout and display a tooltip notification only once
+                CommonKeywords().show_tooltip(_('New day started!') + ' ' + _('Please start with a Check-in task in the morning.'))
+                data['OUTPUT']['CHECKOUT_CALC_DATE'] = '00:00'
+                with open(self.vault, 'w') as f:
+                    json.dump(data, f, ensure_ascii=True, indent=4)
+            return
+
+        if checkin_str == '00:00' and checkout_str == '00:00':
+            self.icon.title = _('New day started!') + ' ' +_('Please start with a Check-in task in the morning.')
+            self.update_image(checkout_str, data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
             self.break_enable(False)
             return
 
         # 3. Update Passed, Undertime or Overtime tooltip if check-in was performed for today. Icon color - GREY
         self.break_enable(True)
         checkin = datetime.strptime(checkin_str, '%Y-%m-%d %H:%M:%S')
-        checkout_str = data['OUTPUT']['CHECKOUT_CALC_DATE']
-        # check if it is old format with miliseconds
-        if '.' in checkout_str:
-            checkout_str = checkout_str.split('.')[0]
         checkout_calc = datetime.strptime(checkout_str, '%Y-%m-%d %H:%M:%S')
 
         # If break is active, then the CHECKOUT_CALC_DATE need to be incremented after the break

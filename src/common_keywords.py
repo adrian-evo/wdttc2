@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 import ctypes
 from os.path import exists
 import re
+import subprocess
+import time
+import platform
 from taskslocales import *
 from taskslocales import _
 from devdata_path import *
@@ -31,6 +34,35 @@ class CommonKeywords:
     def pause_execution(self, msg):
         mb_topmost_flag = 0x40000
         ctypes.windll.user32.MessageBoxExW(None, msg, _("Info"), 0 | 64 | mb_topmost_flag)
+
+    def show_tooltip(self, msg, title="Info", icon_type="Info", duration=5):
+        # Icon types: Info, Warning, Error, None
+        if platform.system() != "Windows":
+            self.pause_execution(msg)
+            return
+        interval = 5
+        elapsed = 0
+        while elapsed < duration:
+            powershell_script = f'''
+            Add-Type -AssemblyName System.Windows.Forms
+            $notify = New-Object System.Windows.Forms.NotifyIcon
+            $notify.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::{icon_type}
+            $notify.Icon = [System.Drawing.SystemIcons]::Information
+            $notify.BalloonTipTitle = "''' + title + '''"
+            $notify.BalloonTipText = "''' + msg + '''"
+            $notify.Visible = $true
+            $notify.ShowBalloonTip(5000)
+
+            Start-Sleep -Seconds 5
+            $notify.Dispose()
+            '''
+            # Hide the PowerShell window
+            subprocess.Popen(
+                ['powershell', '-NoProfile', '-Command', powershell_script],
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            time.sleep(interval)
+            elapsed += interval
 
     def parse_duration(self, duration_str):
         # Remove any whitespace and convert to lowercase

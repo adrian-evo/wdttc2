@@ -58,8 +58,9 @@ class WorkdayTasks:
                 else env['OUTPUT']['CUMULATED_OVER_UNDER_TIME']
             undover = _('You have total undertime:') \
                 if text[0] == '-' else _('You have total overtime:')
-            self.common.pause_execution(
-                f"{_('Welcome!')} \n {undover} {text}"
+            self.common.show_tooltip(
+                f"{undover} {text}",
+                f"{_('Welcome!')}"
             )
         else:
             sleep(5)
@@ -96,8 +97,9 @@ class WorkdayTasks:
         if not env['LEVEL_1_ACTIONS']['SILENT_RUN']:
             undover = _('You have total undertime:') \
                 if total_wt_diff[0] == '-' else _('You have total overtime:')
-            self.common.pause_execution(
-                f"{_('Goodbye!')} \n {undover} {total_wt_diff}"
+            self.common.show_tooltip(
+                f"{undover} {total_wt_diff}",
+                f"{_('Goodbye!')}"
             )
 
     def workday_verify(self):
