@@ -1,7 +1,15 @@
-set env_file=devdata\env.json
-if not exist !env_file! (
+
+:: Set env_file to the first available file in order
+if exist devdata\env-dev.json (
+    set env_file=devdata\env-dev.json
+) else if exist ..\devdata\env-dev.json (
+    set env_file=..\devdata\env-dev.json
+) else if exist devdata\env.json (
+    set env_file=devdata\env.json
+) else if exist ..\devdata\env.json (
     set env_file=..\devdata\env.json
 )
+
 
 :: Read vault file name from devdata\env.json
 for /f "tokens=* delims=" %%a in ('findstr "VAULT_FILE" !env_file!') do (

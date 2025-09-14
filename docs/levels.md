@@ -36,7 +36,7 @@ The following customizations from *vault.json* file are useful for this level:
 
 ## Application level
 
-Depending of the "APP_KEYWORDS" entry from *devdata/env.json* file, and thus the *\*keywords.py* file taken into use, on the second level the "*Check In*" and "*Check Out*" tasks will open either a web application either an excel file.
+Depending of the *cust_keywords.py* file taken into use from the *plugins* directory, on the second level the "*Check In*" and "*Check Out*" tasks will open either a web application either an excel file.
 
 **URL Keywords** 
 
@@ -117,6 +117,6 @@ However, using the included _cust_keywords.py_ works out of the box, and when th
 
 2. Execute any of the "*Check in*", "*Check out*" or "*Custom*" tasks, and for the web application you will get the message that the automatic action was not implemented. This is as expected. For excel application, the automatic action will be executed.
 
-For web application, this means the actions level is useful when you are using a customised **app_keywords_comp.py** file with your own actions, by editing the keywords _Checkin App Task_, _Check Out App Task_ and _Custom App Task_, with own clicks on the HTML selectors, as needed by Playwright libraries.
+For web application, this means the actions level is useful when you are using a customised **cust_keywords.py** file with your own actions, by editing the keywords _Checkin App Task_, _Check Out App Task_ and _Custom App Task_, with own clicks on the HTML selectors, as needed by Playwright libraries.
 
 At the end all the required actions should be customized and implemented accordingly, so that the whole Check in / Check out experience happens without any user intervention other than launching the tasks.

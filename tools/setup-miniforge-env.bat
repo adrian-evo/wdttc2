@@ -5,7 +5,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-:: Read environment variables from devdata\env.json
+:: Read environment variables from devdata\env-dev.json or env.json
 call get-env-vars.bat
 
 :: activate miniforge3 environment if available

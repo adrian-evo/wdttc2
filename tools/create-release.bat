@@ -1,16 +1,8 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-:: Read environment variables from devdata\env.json
-if exist ..\devdata\env-dev.json (
-    move /Y ..\devdata\env.json ..\devdata\env.json.bak
-    move /Y  ..\devdata\env-dev.json ..\devdata\env.json
-)
+:: Read environment variables from devdata\env-dev.json or env.json
 call get-env-vars.bat
-if exist ..\devdata\env.json.bak (
-    move /Y ..\devdata\env.json ..\devdata\env-dev.json
-    move /Y  ..\devdata\env.json.bak ..\devdata\env.json
-)
 
 :: activate miniforge3 environment if available
 if exist "!MINIFORGE3_PATH!/Scripts/activate.bat" (

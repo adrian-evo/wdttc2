@@ -88,12 +88,10 @@ if "!MyChoice!"=="Icon" (
 )
 :: Language
 if "!MyChoice!"=="Language" ( 
-  !launcher! task
+  !launcher! taskslocales
   pause
   exit /b %errorlevel%
 )
 
 :: run the task
-if exist "wdttc.exe" (
-  !launcher! tasks !MyChoice!
-)
+!launcher! tasks !MyChoice!

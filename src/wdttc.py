@@ -17,10 +17,6 @@ import taskslocales
 import trayicon
 
 
-def pause_execution(msg):
-    mb_topmost_flag = 0x40000
-    ctypes.windll.user32.MessageBoxExW(None, msg, "Info", 0 | 64 | mb_topmost_flag)
-
 def main():
     # Run icon task by default
     if len(sys.argv) < 2:
