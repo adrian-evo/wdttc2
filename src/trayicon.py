@@ -49,6 +49,8 @@ else:
 # how often to update the tray icon, color and tooltip text. default 10 seconds
 event_time_sleep = 10
 
+# time gap to display notification for new day started, in seconds. default 120 seconds = 2 minutes
+new_day_notification_time_gap = 120
 
 # workday tray icon class
 class WorkdayTrayIcon:
@@ -65,6 +67,9 @@ class WorkdayTrayIcon:
         self.exit_event = None
         self.icon = None
         self.vault = vault
+
+        # store last activity time of the icon
+        self.last_activity_time = None
 
     def create_icon(self):
         self.exit_event = Event()
@@ -135,20 +140,31 @@ class WorkdayTrayIcon:
             return
 
         # 2. If check-in is 00:00 it means check-out was performed. Icon color - RED
-        # On the same day, display End of the working day. On a new day, display New day started.
-        # On a new day, reset CHECKOUT_CALC_DATE to 00:00, and display a tooltip with New day started only once
         if checkin_str == '00:00' and checkout_str != '00:00':
-            self.icon.title = _('End of the working day')
-            self.update_image(checkin_str, data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
+            checkout_calc = datetime.strptime(checkout_str, '%Y-%m-%d %H:%M:%S')
+            # On the same day, display End of the working day. On a new day, display New day started.
+            if timenow.date() > checkout_calc.date():
+                self.icon.title = _('New day started!') + ' ' +_('Please start with a Check-in task in the morning.')
+                if self.last_activity_time is None:
+                    self.last_activity_time = timenow
+                    self.update_image(timenow.strftime("%H:%M"), data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
+            else:
+                self.icon.title = _('End of the working day')
+                self.update_image(checkin_str, data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
             self.break_enable(False)
 
-            checkout_calc = datetime.strptime(checkout_str, '%Y-%m-%d %H:%M:%S')
+            # On a new day, reset the checkout and display a tooltip notification only once, after 5 minutes of activity
             if timenow.date() > checkout_calc.date():
-                # On a new day, reset the checkout and display a tooltip notification only once
-                CommonKeywords().show_tooltip(_('New day started!') + ' ' + _('Please start with a Check-in task in the morning.'))
-                data['OUTPUT']['CHECKOUT_CALC_DATE'] = '00:00'
-                with open(self.vault, 'w') as f:
-                    json.dump(data, f, ensure_ascii=True, indent=4)
+                time_gap = (timenow - self.last_activity_time).total_seconds()
+                #print('Time gap since last activity: {} seconds'.format(time_gap))
+                if time_gap > new_day_notification_time_gap:
+                    # reset last activity time
+                    self.last_activity_time = None
+
+                    CommonKeywords().show_tooltip(_('New day started!') + ' ' + _('Please start with a Check-in task in the morning.'))
+                    data['OUTPUT']['CHECKOUT_CALC_DATE'] = '00:00'
+                    with open(self.vault, 'w') as f:
+                        json.dump(data, f, ensure_ascii=True, indent=4)
             return
 
         if checkin_str == '00:00' and checkout_str == '00:00':
@@ -192,7 +208,6 @@ class WorkdayTrayIcon:
         checkin_time = checkin.strftime("%H:%M")
         checkout_time = checkout_calc.strftime("%H:%M")
         hover_text = _('Check In-Out time') + ': {}-{}'.format(checkin_time, checkout_time)
-        timenow = datetime.now()
         passed = str(timenow - checkin).split('.',2)[0]
         if timenow < checkout_calc:
             left = str(checkout_calc - timenow).split('.',2)[0]
@@ -219,6 +234,9 @@ class WorkdayTrayIcon:
 
         # update the tooltip
         self.icon.title = hover_text
+
+        # reset last activity time of the icon
+        self.last_activity_time = None
 
     def update_image(self, text, color):
         # equal sign (=) in the color name means icon color before and text color after the equal sign
