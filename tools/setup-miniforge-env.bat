@@ -38,4 +38,9 @@ pip list
 echo .
 echo Miniforge3 wdttc environment was created and activated, and contains the above Python modules.
 echo .
+echo Installing Playwright chromium browser. Close window to cancel.
+echo .
+pause
+call playwright install chromium
+echo .
 pause

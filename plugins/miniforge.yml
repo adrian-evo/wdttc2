@@ -1,7 +1,7 @@
 name: wdttc
 channels:
   # Define conda channels here. 
-  - conda-forge
+  - https://prefix.dev/conda-forge
 
 dependencies:
   # Define conda packages here. 
