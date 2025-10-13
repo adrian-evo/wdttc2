@@ -5,6 +5,9 @@ execute overtime_custom_action() implemented below once Overtime starts
 overtime_menu_item_visible = False
 overtime_checked_color = 'Magenta'
 
+def other_action(self):
+    pass
+
 def overtime_custom_action(self):
     import ctypes
     mb_topmost_flag = 0x40000

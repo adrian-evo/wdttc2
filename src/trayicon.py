@@ -49,8 +49,8 @@ else:
 # how often to update the tray icon, color and tooltip text. default 10 seconds
 event_time_sleep = 10
 
-# time gap to display notification for new day started, in seconds. default 120 seconds = 2 minutes
-new_day_notification_time_gap = 120
+# time gap to display notification for new day started, in seconds. default 30 seconds
+new_day_notification_time_gap = 30
 
 # workday tray icon class
 class WorkdayTrayIcon:
@@ -116,6 +116,7 @@ class WorkdayTrayIcon:
         icon.visible = True
         while not WorkdayTrayIcon.instance.exit_event.is_set():
             WorkdayTrayIcon.instance.update_icon()
+            WorkdayTrayIcon.instance.other_action()
             WorkdayTrayIcon.instance.exit_event.wait(event_time_sleep)  # allows exiting while waiting. time.sleep would block
 
     def update_icon(self):
@@ -351,6 +352,7 @@ def main(arg):
     WorkdayTrayIcon.overtime_visible = overtimemenu.overtime_menu_item_visible
     WorkdayTrayIcon.overtime_checked_color = overtimemenu.overtime_checked_color
     WorkdayTrayIcon.overtime_custom_action = overtimemenu.overtime_custom_action
+    WorkdayTrayIcon.other_action = overtimemenu.other_action
     
     WorkdayTrayIcon.instance = WorkdayTrayIcon(vault)
     WorkdayTrayIcon.instance.create_icon()
