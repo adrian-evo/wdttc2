@@ -1,6 +1,9 @@
 {
     "LEVEL_1_ACTIONS": {
-        "SILENT_RUN": false
+        "SILENT_RUN": false,
+        "ICON_CLICK_BREAK_ON_OFF": false,
+        "ICON_DOUBLE_CLICK_CHECKIN_OUT": false,
+        "ICON_DOUBLE_CLICK_CONFIRMATION": true
     },
     "LEVEL_2_ACTIONS": {
         "OPEN_CHECKIN_APP": true,

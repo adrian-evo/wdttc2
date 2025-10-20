@@ -29,7 +29,7 @@ else:
 # Add plugins directory to path
 #plugins_path = os.path.join(application_path, 'plugins')
 sys.path.append(application_path)
-from plugins import aboutaction, overtimemenu
+from plugins import aboutaction, overtimemenu_dev as overtimemenu
 
 # icon data
 icon_size = (48, 48)
@@ -49,8 +49,8 @@ else:
 # how often to update the tray icon, color and tooltip text. default 10 seconds
 event_time_sleep = 10
 
-# time gap to display notification for new day started, in seconds. default 30 seconds
-new_day_notification_time_gap = 30
+# time gap to display notification for new day started, in seconds. default 180 seconds
+new_day_notification_time_gap = 180
 
 # workday tray icon class
 class WorkdayTrayIcon:
@@ -70,6 +70,12 @@ class WorkdayTrayIcon:
 
         # store last activity time of the icon
         self.last_activity_time = None
+
+        # Double-click detection
+        self.last_click_time = 0
+        self.double_click_threshold = 0.5  # 500ms threshold for double-click
+        self.single_click_timer = None  # Timer for delayed single-click handling
+        self.double_click_detected = False  # Flag to prevent single-click when double-click occurs
 
     def create_icon(self):
         self.exit_event = Event()
@@ -94,6 +100,7 @@ class WorkdayTrayIcon:
             about = _('About (Upgrade available)')
 
         self.icon.menu = Menu(
+            MenuItem('', lambda: self.handle_click(), default=True, visible=False),  # Hidden click handler
             MenuItem(_('Check In'), lambda : self.checkin_action()), 
             MenuItem(_('Check Out'), lambda : self.checkout_action()), 
             MenuItem(_('Verify'), lambda : self.verify_action()), 
@@ -268,6 +275,10 @@ class WorkdayTrayIcon:
         self.icon.icon = img
 
     def exit_action(self):
+        # Cancel any pending single click timer
+        if hasattr(self, 'single_click_timer') and self.single_click_timer:
+            self.single_click_timer.cancel()
+            
         self.icon.visible = False
         self.exit_event.set()
         self.icon.stop()
@@ -321,6 +332,106 @@ class WorkdayTrayIcon:
             data['OUTPUT']['BREAK_TIME_TODAY'] = ''
             with open(self.vault, 'w') as f:
                 json.dump(data, f, ensure_ascii=True, indent=4)
+
+    def handle_click(self):
+        """Handle single click with double-click detection"""
+        import time
+        import threading
+        
+        current_time = time.time()
+        
+        # Check if this is a double-click (within threshold)
+        if current_time - self.last_click_time < self.double_click_threshold:
+            #print("Double-click detected")
+            # Set flag to prevent single-click execution
+            self.double_click_detected = True
+            # Cancel any pending single click action
+            if hasattr(self, 'single_click_timer') and self.single_click_timer:
+                self.single_click_timer.cancel()
+            # Handle double-click
+            self.handle_double_click()
+        else:
+            # Potential single click - wait to see if double-click follows
+            #print("Single click detected, waiting for double-click...")
+            self.double_click_detected = False
+            
+            # Cancel any existing timer first
+            if hasattr(self, 'single_click_timer') and self.single_click_timer:
+                self.single_click_timer.cancel()
+            
+            # Use a timer to delay single click action
+            self.single_click_timer = threading.Timer(self.double_click_threshold, self.handle_single_click)
+            self.single_click_timer.start()
+            
+        self.last_click_time = current_time
+
+    def handle_single_click(self):
+        """Handle single click action (delayed)"""
+        with open(self.vault) as f:
+            data = json.load(f)
+        if not data['LEVEL_1_ACTIONS']['ICON_CLICK_BREAK_ON_OFF']:
+            return
+        checkin_str = data['OUTPUT']['CHECKIN_DATE']
+        checkout_str = data['OUTPUT']['CHECKOUT_CALC_DATE']
+        if checkin_str != '' and checkin_str != '00:00' and checkout_str != '00:00':
+            # Only execute if double-click wasn't detected
+            if not getattr(self, 'double_click_detected', False):
+                #print("Single click action executed")
+                self.break_active = not self.break_active
+                self.icon.update_menu()
+                self.update_icon()
+        
+        # Clean up
+        self.single_click_timer = None
+
+    def handle_double_click(self):
+        """Handle double-click action based on current state"""
+        with open(self.vault) as f:
+            data = json.load(f)
+        if not data['LEVEL_1_ACTIONS']['ICON_DOUBLE_CLICK_CHECKIN_OUT']:
+            return
+
+        checkin_str = data['OUTPUT']['CHECKIN_DATE']
+        checkout_str = data['OUTPUT']['CHECKOUT_CALC_DATE']
+        
+        # On a new day or first run, double-click should check-in
+        if checkin_str == '' or (checkin_str == '00:00' and checkout_str == '00:00'):
+            # Ask user confirmation
+            if data['LEVEL_1_ACTIONS']['ICON_DOUBLE_CLICK_CONFIRMATION']:
+                import ctypes
+                mb_topmost_flag = 0x40000
+                ret = ctypes.windll.user32.MessageBoxExW(
+                    None, 
+                    _("Double-click detected. Do you want to checkin?"), 
+                    _("Checkin Confirmation"), 
+                    4 | 32 | mb_topmost_flag  # 4=Yes/No buttons, 32=Question icon
+                )
+            else:
+                ret = 6  # Simulate Yes
+            if ret == 6:  # User clicked Yes
+                self.checkin_action()
+            # If user clicked No (ret == 7), do nothing
+        # During work hours, double-click should check-out
+        elif checkin_str != '00:00' and checkout_str != '00:00':
+            # Ask user confirmation
+            if data['LEVEL_1_ACTIONS']['ICON_DOUBLE_CLICK_CONFIRMATION']:
+                import ctypes
+                mb_topmost_flag = 0x40000
+                ret = ctypes.windll.user32.MessageBoxExW(
+                    None, 
+                    _("Double-click detected. Do you want to checkout?"), 
+                    _("Checkout Confirmation"), 
+                    4 | 32 | mb_topmost_flag  # 4=Yes/No buttons, 32=Question icon
+                )
+            else:
+                ret = 6  # Simulate Yes            
+            if ret == 6:  # User clicked Yes
+                self.checkout_action()
+            # If user clicked No (ret == 7), do nothing
+
+        # Otherwise, double-click should verify
+        else:
+            pass
 
 
 def main(arg):

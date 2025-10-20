@@ -29,6 +29,13 @@ The following customizations from *vault.json* file are useful for this level:
     "SILENT_RUN": to enable or disable the "*Welcome*" and "*Goodbye*" messages
 	at the beginning and at the end of tasks execution.
 
+    "ICON_CLICK_BREAK_ON_OFF": to enable or disable the Break with a single click on the icon.
+
+    "ICON_DOUBLE_CLICK_CHECKIN_OUT": to enable or disable the Checkin and out with a double click on the icon.
+
+    "ICON_DOUBLE_CLICK_CONFIRMATION": to enable or disable a confirmation dialog for double click, so that to avoid accidental double click.
+
+
 "MY_DATA":
 
      "STANDARD_WORKING_TIME": "8 hours 30 minutes" (e.g. this working time includes
