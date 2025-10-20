@@ -29,7 +29,7 @@ else:
 # Add plugins directory to path
 #plugins_path = os.path.join(application_path, 'plugins')
 sys.path.append(application_path)
-from plugins import aboutaction, overtimemenu_dev as overtimemenu
+from plugins import aboutaction, overtimemenu
 
 # icon data
 icon_size = (48, 48)
