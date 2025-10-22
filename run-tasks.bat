@@ -55,6 +55,7 @@ if "!MyChoice!"=="" (
   if "!MyChoice!" == "Icon" set valid=1
   if "!MyChoice!" == "Startup" set valid=1
   if "!MyChoice!" == "Language" set valid=1
+  if "!MyChoice!" == "Setup" set valid=1
   if not defined valid (
     echo The !MyChoice! is invalid task. Please choose a valid task or close window to exit.
     goto ASK
@@ -75,12 +76,6 @@ if "!MyChoice!" == "Startup" (
   exit /b %errorlevel%
 )
 
-echo .
-echo .
-echo The Check-!MyChoice! task will be executed in !TASK_WAIT_TIMEOUT! seconds. Press any key to continue.
-echo .
-timeout /t !TASK_WAIT_TIMEOUT!
-
 :: Icon
 if "!MyChoice!"=="Icon" ( 
   !launcher! runtrayicon
@@ -91,6 +86,20 @@ if "!MyChoice!"=="Language" (
   !launcher! taskslocales
   pause
   exit /b %errorlevel%
+)
+:: Setup
+if "!MyChoice!"=="Setup" ( 
+  :: open vault.json for editing
+  notepad ".\devdata\!VAULT_FILE!"
+  exit /b %errorlevel%
+)
+
+if !TASK_WAIT_TIMEOUT! neq 0 (
+  echo .
+  echo .
+  echo The Check-!MyChoice! task will be executed in !TASK_WAIT_TIMEOUT! seconds. Press any key to continue.
+  echo .
+  timeout /t !TASK_WAIT_TIMEOUT!
 )
 
 :: run the task

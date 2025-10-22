@@ -58,7 +58,8 @@ class CustomKeywords:
             os.startfile(env['MY_DATA']['CHECKIN']['XLS'])
         else:
             subprocess.call(["open", env['MY_DATA']['CHECKIN']['XLS']])
-
+        return True
+    
     def open_checkin_app(self):
         """Open Excel file"""
         env = self.common.load_vault_file()

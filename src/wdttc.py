@@ -25,16 +25,25 @@ def main():
         arg = sys.argv[1]
     with open(devdata_path('env.json')) as f:
         envdata = json.load(f)
+    with open(devdata_path(envdata['VAULT_FILE'])) as f:
+        appdata = json.load(f)
     sleep_time = envdata['TASK_WAIT_TIMEOUT']
+    run_headless = appdata['LEVEL_2_ACTIONS'].get('RUN_HEADLESS', False)
 
     if len(sys.argv) > 2:
         msg = '[%s %s]' % (arg, sys.argv[2])
     else:
         msg = '[%s]' % arg
-    print("The %s task will be executed in %s seconds... Close the window to cancel." % (msg, sleep_time))
-    for i in range(sleep_time,0,-1):
-        print(f"{i}", end="\r", flush=True)
-        sleep(1)
+
+    # no timeout for runtrayicon
+    if arg == 'runtrayicon' or run_headless:
+        sleep_time = 0
+
+    if sleep_time > 0:
+        print("The %s task will be executed in %s seconds... Close the window to cancel." % (msg, sleep_time))
+        for i in range(sleep_time,0,-1):
+            print(f"{i}", end="\r", flush=True)
+            sleep(1)
 
     # The argument is the same as module (filename), so we need to import the module
     # If module is not found under src, it will be searched under plugins

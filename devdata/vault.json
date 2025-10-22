@@ -8,7 +8,8 @@
     "LEVEL_2_ACTIONS": {
         "OPEN_CHECKIN_APP": true,
         "OPEN_CHECKOUT_APP": true,
-        "OPEN_CUSTOM_APP": true
+        "OPEN_CUSTOM_APP": true,
+        "OPEN_HEADLESS_APP": false
     },
     "LEVEL_3_ACTIONS": {
         "DO_CHECKIN_ACTION": true,

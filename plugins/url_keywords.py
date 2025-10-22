@@ -17,10 +17,13 @@ class CustomKeywords:
 
     def check_in_app_task(self):
         """Check in App task"""
-        self.open_checkin_app()
+        env = self.common.load_vault_file()
+        if env['LEVEL_2_ACTIONS']['OPEN_HEADLESS_APP'] and env['LEVEL_3_ACTIONS']['DO_CHECKIN_ACTION']:
+            self.open_checkin_app(True)
+        else:
+            self.open_checkin_app()
         self.fill_checkin_credentials()
 
-        env = self.common.load_vault_file()
         checkin_done = True
         if env['LEVEL_3_ACTIONS']['DO_CHECKIN_ACTION']:
             self.common.pause_execution(
@@ -37,10 +40,13 @@ class CustomKeywords:
 
     def check_out_app_task(self):
         """Check out App task"""
-        self.open_checkin_app()
+        env = self.common.load_vault_file()
+        if env['LEVEL_2_ACTIONS']['OPEN_HEADLESS_APP'] and env['LEVEL_3_ACTIONS']['DO_CHECKOUT_ACTION']:
+            self.open_checkin_app(True)
+        else:
+            self.open_checkin_app()
         self.fill_checkin_credentials()
 
-        env = self.common.load_vault_file()
         checkout_done = True
         if env['LEVEL_3_ACTIONS']['DO_CHECKOUT_ACTION']:
             self.common.pause_execution(
@@ -57,15 +63,15 @@ class CustomKeywords:
 
     def verify_app_task(self):
         """Verify App task"""
-        self.open_checkin_app()
+        self.open_checkin_app(True)
         self.fill_checkin_credentials()
         self.close_checkin_app()
 
-    def open_checkin_app(self):
+    def open_checkin_app(self, headless=False):
         """Open a browser and go to check in URL"""
         env = self.common.load_vault_file()
         self.p = sync_playwright().start()
-        self.browser = self.p.chromium.launch(headless=False, channel='chrome')
+        self.browser = self.p.chromium.launch(headless=headless, channel='chrome')
         self.page = self.browser.new_page()
         self.page.set_default_timeout(self.BROWSER_TIMEOUT)
         self.page.goto(env['MY_DATA']['CHECKIN']['URL'])
@@ -114,11 +120,11 @@ class CustomKeywords:
             )
         self.close_custom_app()
 
-    def open_custom_app(self):
+    def open_custom_app(self, headless=False):
         """Open a browser and go to custom URL"""
         env = self.common.load_vault_file()
         self.p = sync_playwright().start()
-        self.browser = self.p.chromium.launch(headless=False, channel='chrome')
+        self.browser = self.p.chromium.launch(headless=headless, channel='chrome')
         self.page = self.browser.new_page()
         self.page.set_default_timeout(self.BROWSER_TIMEOUT)
         self.page.goto(env['MY_DATA']['CUSTOM']['URL'])

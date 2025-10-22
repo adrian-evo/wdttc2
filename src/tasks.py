@@ -36,21 +36,20 @@ class WorkdayTasks:
         env = self.common.load_vault_file()
 
         # Verify and perform check-in
-        checkin_done = True
         if env['LEVEL_2_ACTIONS']['OPEN_CHECKIN_APP']:
-            checkin_done = self.keywords.check_in_app_task()
+            if not self.keywords.check_in_app_task():
+                return
 
-        if checkin_done:        
-            # Save current check-in date and time
-            date_now = datetime.now()
-            # remove microseconds
-            date_now -= timedelta(microseconds=date_now.microsecond)
-            env['OUTPUT']['CHECKIN_DATE'] = date_now.isoformat(sep=' ')
+        # Save current check-in date and time
+        date_now = datetime.now()
+        # remove microseconds
+        date_now -= timedelta(microseconds=date_now.microsecond)
+        env['OUTPUT']['CHECKIN_DATE'] = date_now.isoformat(sep=' ')
 
-            # Calculate and save check-out time
-            date_out = date_now + self.common.parse_duration(env['MY_DATA']['STANDARD_WORKING_TIME'])
-            env['OUTPUT']['CHECKOUT_CALC_DATE'] = date_out.isoformat(sep=' ')
-            self.common.save_vault_file(env)
+        # Calculate and save check-out time
+        date_out = date_now + self.common.parse_duration(env['MY_DATA']['STANDARD_WORKING_TIME'])
+        env['OUTPUT']['CHECKOUT_CALC_DATE'] = date_out.isoformat(sep=' ')
+        self.common.save_vault_file(env)
 
         # Welcome message
         if not env['LEVEL_1_ACTIONS']['SILENT_RUN']:
@@ -79,8 +78,9 @@ class WorkdayTasks:
 
         # Perform check-out
         if env['LEVEL_2_ACTIONS']['OPEN_CHECKOUT_APP']:
-            self.keywords.check_out_app_task()
-
+            if not self.keywords.check_out_app_task():
+                return
+       
         # Calculate times
         today_working_time, today_wt_diff, total_wt_diff = self.common.calculate_working_times()
         prefix = '-' if total_wt_diff < 0 else ''
@@ -107,7 +107,8 @@ class WorkdayTasks:
         env = self.common.load_vault_file()
 
         if env['LEVEL_2_ACTIONS']['OPEN_CHECKIN_APP']:
-            self.keywords.verify_app_task()
+            if not self.keywords.verify_app_task():
+                return
 
         # Verify check-in status
         if not env['OUTPUT']['CHECKIN_DATE'] or env['OUTPUT']['CHECKIN_DATE'] == '00:00':

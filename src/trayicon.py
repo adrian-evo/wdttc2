@@ -112,6 +112,7 @@ class WorkdayTrayIcon:
             MenuItem(_('Overtime'), self.overtime_action, checked=lambda _: self.overtime_active, visible=lambda _: self.overtime_visible), 
             MenuItem(_('Reset'), lambda : self.reset_action()), 
             Menu.SEPARATOR,
+            MenuItem(_('Setup'), lambda : self.setup_action()), 
             MenuItem(about, lambda : self.about_action()), 
             MenuItem(_('Quit'), lambda : self.exit_action()), 
         )
@@ -283,25 +284,61 @@ class WorkdayTrayIcon:
         self.exit_event.set()
         self.icon.stop()
 
+    def _run_task_hidden(self, task_name, hide_window=True):
+        """Helper method to run tasks with optional hidden window on Windows
+        
+        Args:
+            task_name: Name of the task to run
+            hide_window: If True, hide the console window (default: True)
+        """
+        creationflags = 0
+        if hide_window and sys.platform == 'win32':
+            creationflags = subprocess.CREATE_NO_WINDOW
+            
+        return subprocess.Popen(
+            [run_task_command, task_name],
+            creationflags=creationflags
+        )
+
     def checkin_action(self):
         # reset break if it is active during check in
         self.break_active = False
         self.update_icon()
-
-        return subprocess.Popen([run_task_command, 'In'])
+        
+        # Read vault to check if headless mode is enabled
+        with open(self.vault) as f:
+            data = json.load(f)
+        hide_window = data['LEVEL_2_ACTIONS'].get('OPEN_HEADLESS_APP', False)
+        
+        return self._run_task_hidden('In', hide_window)
 
     def checkout_action(self):
         # reset break if it is active during check out
         self.break_active = False
         self.update_icon()
-
-        return subprocess.Popen([run_task_command, 'Out'])
+        
+        # Read vault to check if headless mode is enabled
+        with open(self.vault) as f:
+            data = json.load(f)
+        hide_window = data['LEVEL_2_ACTIONS'].get('OPEN_HEADLESS_APP', False)
+        
+        return self._run_task_hidden('Out', hide_window)
 
     def verify_action(self):
-        return subprocess.Popen([run_task_command, 'Verify'])
+        # Verify action typically doesn't need headless mode
+        return self._run_task_hidden('Verify', hide_window=True)
 
     def custom_action(self):
-        return subprocess.Popen([run_task_command, 'Custom'])
+        # Custom action can use headless mode
+        with open(self.vault) as f:
+            data = json.load(f)
+        hide_window = data['LEVEL_2_ACTIONS'].get('OPEN_HEADLESS_APP', False)
+        
+        return self._run_task_hidden('Custom', hide_window)
+
+    def setup_action(self):
+        # Setup should always show window for user interaction
+        return self._run_task_hidden('Setup', hide_window=True)
 
     def break_action(self, icon, item):
         if not self.break_enabled:
