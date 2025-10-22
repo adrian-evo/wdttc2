@@ -29,7 +29,14 @@ else:
 # Add plugins directory to path
 #plugins_path = os.path.join(application_path, 'plugins')
 sys.path.append(application_path)
-from plugins import aboutaction, overtimemenu
+
+# Try to import overtimemenu_dev first, fallback to overtimemenu
+try:
+    from plugins import overtimemenu_dev as overtimemenu
+except ImportError:
+    from plugins import overtimemenu
+
+from plugins import aboutaction
 
 # icon data
 icon_size = (48, 48)
@@ -44,7 +51,6 @@ else:
     ttf_font = 'arialbd.ttf'
     run_task_command = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'run-tasks.bat')
     python_str = 'python.exe'
-
 
 # how often to update the tray icon, color and tooltip text. default 10 seconds
 event_time_sleep = 10
