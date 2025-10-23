@@ -298,12 +298,18 @@ class WorkdayTrayIcon:
             hide_window: If True, hide the console window (default: True)
         """
         creationflags = 0
+        env = os.environ.copy()
+
         if hide_window and sys.platform == 'win32':
             creationflags = subprocess.CREATE_NO_WINDOW
+            env['WDTTC_HEADLESS'] = '1'
+        else:
+            env['WDTTC_HEADLESS'] = '0'
             
         return subprocess.Popen(
             [run_task_command, task_name],
-            creationflags=creationflags
+            creationflags=creationflags,
+            env=env
         )
 
     def checkin_action(self):

@@ -3,6 +3,14 @@
 @echo off
 setlocal EnableDelayedExpansion
 
+:: Set up error log file and clear if exists
+set ERROR_LOG=wdttc-errors.log
+if exist "%ERROR_LOG%" del "%ERROR_LOG%" 2>nul
+
+:: Detect if running without console window
+set "HEADLESS_MODE=0"
+if "%WDTTC_HEADLESS%"=="1" set "HEADLESS_MODE=1"
+
 :: Read environment variables from devdata\env.json
 call tools\get-env-vars.bat
 
@@ -89,9 +97,9 @@ if "!MyChoice!"=="Language" (
 )
 :: Setup
 if "!MyChoice!"=="Setup" ( 
-  :: open vault.json for editing
+:: open vault.json for editing
   notepad ".\devdata\!VAULT_FILE!"
-  exit /b %errorlevel%
+    exit /b %errorlevel%
 )
 
 if !TASK_WAIT_TIMEOUT! neq 0 (
@@ -103,4 +111,34 @@ if !TASK_WAIT_TIMEOUT! neq 0 (
 )
 
 :: run the task
-!launcher! tasks !MyChoice!
+::!launcher! tasks !MyChoice!
+call :RunTaskWithErrorHandling "tasks" "!MyChoice!" "!MyChoice!" || exit /b !errorlevel!
+exit /b 0
+
+REM ============================================================================
+REM Function: RunTaskWithErrorHandling
+REM Parameters: 
+REM   %1 = Module/command (e.g., "tasks", "plugins.teams_tasks")
+REM   %2 = Task argument (e.g., "In", "Out", "Available")
+REM   %3 = Display name for error messages
+REM ============================================================================
+:RunTaskWithErrorHandling
+setlocal
+set "MODULE=%~1"
+set "TASK_ARG=%~2"
+set "DISPLAY_NAME=%~3"
+
+REM Execute the task and capture errors
+!launcher! %MODULE% "%TASK_ARG%" 2>>"%ERROR_LOG%"
+set "EXIT_CODE=!errorlevel!"
+
+if !EXIT_CODE! neq 0 (
+    if "!HEADLESS_MODE!"=="1" (
+        powershell -WindowStyle Hidden -Command "& {Add-Type -AssemblyName System.Windows.Forms; $notify = New-Object System.Windows.Forms.NotifyIcon; $notify.Icon = [System.Drawing.SystemIcons]::Error; $notify.Visible = $true; $notify.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Error; $notify.BalloonTipTitle = '%DISPLAY_NAME% Error'; $notify.BalloonTipText = '%DISPLAY_NAME% task failed. Check log: %ERROR_LOG%'; $notify.ShowBalloonTip(10000); Start-Sleep -Seconds 10; $notify.Dispose()}"
+    ) else (
+        echo Error occurred during %DISPLAY_NAME% task. Check log: %ERROR_LOG%
+        pause
+    )
+)
+
+endlocal & exit /b %EXIT_CODE%
