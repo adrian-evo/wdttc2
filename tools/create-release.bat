@@ -48,7 +48,7 @@ mkdir dist\wdttc\locales
 xcopy /s /i ..\locales dist\wdttc\locales
 mkdir dist\wdttc\devdata
 copy ..\devdata\env.json dist\wdttc\devdata
-copy ..\devdata\!VAULT_FILE! dist\wdttc\devdata
+copy ..\devdata\!VAULT_FILE:.json=-rel.json! dist\wdttc\devdata\!VAULT_FILE!
 mkdir dist\wdttc\tools
 copy get-env-vars.bat dist\wdttc\tools
 
