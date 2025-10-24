@@ -55,8 +55,8 @@ else:
 # how often to update the tray icon, color and tooltip text. default 10 seconds
 event_time_sleep = 10
 
-# time gap to display notification for new day started, in seconds. default 180 seconds
-new_day_notification_time_gap = 180
+# time gap to display notification for new day started, in seconds. default 60 seconds
+new_day_notification_time_gap = 60
 
 # workday tray icon class
 class WorkdayTrayIcon:
@@ -168,7 +168,7 @@ class WorkdayTrayIcon:
                 self.update_image(checkin_str, data['ICON_DATA']['CHECKOUT_DONE_COLOR'])
             self.break_enable(False)
 
-            # On a new day, reset the checkout and display a tooltip notification only once, after 5 minutes of activity
+            # On a new day, reset the checkout and display a tooltip notification only once, after time gap minutes of activity
             if timenow.date() > checkout_calc.date():
                 time_gap = (timenow - self.last_activity_time).total_seconds()
                 #print('Time gap since last activity: {} seconds'.format(time_gap))
@@ -444,7 +444,7 @@ class WorkdayTrayIcon:
         checkout_str = data['OUTPUT']['CHECKOUT_CALC_DATE']
         
         # On a new day or first run, double-click should check-in
-        if checkin_str == '' or (checkin_str == '00:00' and checkout_str == '00:00'):
+        if checkin_str == '' or checkin_str == '00:00':
             # Ask user confirmation
             if data['LEVEL_1_ACTIONS']['ICON_DOUBLE_CLICK_CONFIRMATION']:
                 import ctypes
