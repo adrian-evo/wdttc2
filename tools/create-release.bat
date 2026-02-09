@@ -1,26 +1,26 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-:: Read environment variables from devdata\env-dev.json or env.json
-call get-env-vars.bat
+:: Change to parent directory (project root)
+cd /D %~dp0\..
 
-:: activate miniforge3 environment if available
-if exist "!MINIFORGE3_PATH!/Scripts/activate.bat" (
-    if exist "!MINIFORGE3_PATH!/envs/wdttc" (
-        echo Using Miniforge3 wdttc environment
-        call "!MINIFORGE3_PATH!/Scripts/activate" wdttc
-    ) else (
-        echo Miniforge3 wdttc environment not found. Please create it first.
-        pause
-        exit /b %errorlevel%
-    )
+:: Read environment variables from devdata\env-dev.json or env.json
+call tools\get-env-vars.bat
+
+:: activate uv environment if available
+if exist ".venv\Scripts\activate.bat" (
+    echo Using uv virtual environment
+    call .venv\Scripts\activate
+) else (
+    echo uv virtual environment not found. Please create it first.
+    pause
+    exit /b %errorlevel%
 )
 
 :: Check Python is installed
 python --version 2>nul
 if %errorlevel% neq 0 (
-    echo "Python is not installed. Please install Python first (miniforge3, choco, standalone), or adjust path in env.json"
-    echo !MINIFORGE3_PATH!/Scripts/activate.bat
+    echo "Python is not installed in the virtual environment."
     pause
     exit /b %errorlevel%
 )
@@ -32,27 +32,33 @@ if exist dist (
 )
 
 echo Check if pyinstaller is installed
-python -W ignore -m pip.__main__ show pyinstaller | findstr Version
-if !errorlevel! == 1 (
+uv pip show pyinstaller >nul 2>&1
+if !errorlevel! neq 0 (
     echo pyinstaller is not installed. Will install it now...
-    pause
-    python -W ignore -m pip.__main__ install pyinstaller
-    pause
+    uv pip install pyinstaller
+    if !errorlevel! neq 0 (
+        echo Failed to install pyinstaller
+        pause
+        exit /b !errorlevel!
+    )
+    echo pyinstaller installed successfully
 )
 
+cd tools
 pyinstaller wdttc.spec
+cd ..
 
-copy ..\run-tasks.bat dist\wdttc
-if exist ..\setup-wdttc.bat copy ..\setup-wdttc.bat dist\wdttc
-mkdir dist\wdttc\locales
-xcopy /s /i ..\locales dist\wdttc\locales
-mkdir dist\wdttc\devdata
-copy ..\devdata\env.json dist\wdttc\devdata
-copy ..\devdata\!VAULT_FILE:.json=-rel.json! dist\wdttc\devdata\!VAULT_FILE!
-mkdir dist\wdttc\tools
-copy get-env-vars.bat dist\wdttc\tools
+copy run-tasks.bat tools\dist\wdttc
+if exist setup-wdttc.bat copy setup-wdttc.bat tools\dist\wdttc
+mkdir tools\dist\wdttc\locales
+xcopy /s /i locales tools\dist\wdttc\locales
+mkdir tools\dist\wdttc\devdata
+copy devdata\env.json tools\dist\wdttc\devdata
+copy devdata\!VAULT_FILE:.json=-rel.json! tools\dist\wdttc\devdata\!VAULT_FILE!
+mkdir tools\dist\wdttc\tools
+copy tools\get-env-vars.bat tools\dist\wdttc\tools
 
 echo Create standalone-wdttc.zip package
-powershell -Command "& {Compress-Archive -Force -Path "dist\*" -DestinationPath "dist\standalone-wdttc.zip";}"
+powershell -Command "& {Compress-Archive -Force -Path "tools\dist\*" -DestinationPath "tools\dist\standalone-wdttc.zip";}"
 
 pause

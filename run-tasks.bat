@@ -14,7 +14,7 @@ if "%WDTTC_HEADLESS%"=="1" set "HEADLESS_MODE=1"
 :: Read environment variables from devdata\env.json
 call tools\get-env-vars.bat
 
-:: If standalone exe exists, skip miniforge3 environment setup
+:: If standalone exe exists, skip uv environment setup
 if exist "wdttc.exe" (
     echo Using standalone executable
     set launcher=wdttc.exe
@@ -24,28 +24,25 @@ if exist "wdttc.exe" (
     set launcher=python src/wdttc.py
 )
 
-:: activate miniforge3 environment if available
-if exist "!MINIFORGE3_PATH!/Scripts/activate.bat" (
-    if exist "!MINIFORGE3_PATH!/envs/wdttc" (
-        echo Using Miniforge3 wdttc environment
-        call "!MINIFORGE3_PATH!/Scripts/activate" wdttc
-    ) else (
-        echo Miniforge3 wdttc environment not found. Please create it first.
-        pause
-        exit /b %errorlevel%
-    )
+:: activate uv environment if available
+if exist ".venv\Scripts\activate.bat" (
+    echo Using uv virtual environment
+    call .venv\Scripts\activate
+) else (
+    echo uv virtual environment not found. Please create it first with tools\setup-uv-env.bat
+    pause
+    exit /b %errorlevel%
 )
 
 :: Check Python is installed
 python --version 2>nul
 if %errorlevel% neq 0 (
-    echo "Python is not installed. Please install Python first (miniforge3, choco, standalone)."
-    echo !MINIFORGE3_PATH!/Scripts/activate.bat
+    echo "Python is not installed in the virtual environment."
     pause
     exit /b %errorlevel%
 )
 
-:: If standalone exe exists, skip miniforge3 environment setup
+:: If standalone exe exists, skip uv environment setup
 :STANDALONE
 
 :: If run without arguments, ask it

@@ -7,7 +7,7 @@ def devdata_path(file_name):
         # Running standalone executable
         app_path = os.path.dirname(sys.executable)
     else:
-        # Running in miniforge3 environment
+        # Running in uv virtual environment
         app_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     config_dir = os.path.join(app_path, 'devdata' + os.sep + file_name)
     #print(config_dir)

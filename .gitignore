@@ -20,3 +20,4 @@ local/
 tools/build/
 tools/dist/
 devdata/env-dev.json
+uv.lock

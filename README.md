@@ -14,7 +14,7 @@ This is mostly useful when you are usually starting the workday at flexible, irr
 
 ## Quickstart - Standalone app
 
-The standalone executable is created with Miniforge3, Python 3.12, and packed with PyInstaller. This means it works out of the box, in standalone portable mode, without installing anything on the system.
+The standalone executable is created with uv, Python 3.14, and packed with PyInstaller. This means it works out of the box, in standalone portable mode, without installing anything on the system.
 
 The easiest way to start with this tool is to download the _**standalone-wdttc.zip**_ from the latest release https://github.com/adrian-evo/wdttc2/releases, extract and double click _**wdttc.exe**_ or run _**run-tasks.bat**_ with _Icon_. Then on Windows make the icon visible in the notification area with *Windows Taskbar settings -> Select which icons appear on the taskbar*. Next, right click on the icon and choose _Check In_, and then verify the generated xlsx file.
 
@@ -53,23 +53,21 @@ Detached concept run means that the solution is totally independent of any conti
 	"LOCALE": currently two languages are included, "en" for English and "de" for German. The language
 	files are under "locales" folder and can be customized.
 
-	"MINIFORGE3_PATH": the local path to Miniforge3 installation, if Miniforge3 is used as Python environment (recommended)
-
 	"TASK_WAIT_TIMEOUT": timeout in seconds to wait before the task in command prompt will be executed.
 
 **plugins**
 As an example, this solution includes two custom keywords files. Any of them can be used as a template to be customised for a particular company system, for certain internal system or application, case by case. These files are not used on first level, thus can be ignored initially.
 
 - *cust_keywords.py* default to be used for opening or editing an excel file
-- *url_keywords.py* to be used for opening a web application. Rename as *cust_keywords.py* to this into use instead of default one.
+- *url_keywords.py* to be used for opening a web application. Rename as *cust_keywords.py* to take this into use instead of default one. NOTE: For standalone variant, the file is found under *wdttc\_internal\plugins* folder. Also note that playwright will try to use installed Chrome for opening web tasks.
 
 ## Use with Python environment (not standalone)
 
 :arrow_double_down: Download this solution
 > Download the latest version from under the _Releases_ section and then extract it to any local folder.
 
-:hammer: Install Python environment if not already available (recommended with miniforge3 but choco or standard installation can be also used)
-> For e.g. miniforge3, first install it, then set "MINIFORGE3_PATH" in _devdata\env.json_ and then execute _**tools/setup-miniforge-env.bat**_ on Windows.
+:hammer: Install Python environment if not already available (recommended with uv but standard installation can be also used)
+> For e.g. uv, first install it, then execute _**tools/setup-uv-env.bat**_ on Windows.
 
 :o2: Run the "*Icon*" task
 > Execute _**run-tasks.bat**_ on Windows or _**run-tasks.command**_ on macOS and then choose "*Icon*" task. Optionally check the [detailed instructions](#the-tasks-and-how-to-run-them) below about the tasks and the alternative ways to run them.

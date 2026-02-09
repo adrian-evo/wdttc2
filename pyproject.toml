@@ -1,0 +1,13 @@
+[project]
+name = "wdttc"
+version = "6.0"
+requires-python = ">=3.12"
+dependencies = [
+    "playwright",
+    "openpyxl",
+    "pystray",
+    "psutil",
+    "keyring",
+    "requests",
+    "pywinauto",
+]
