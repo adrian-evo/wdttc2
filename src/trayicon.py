@@ -316,7 +316,12 @@ class WorkdayTrayIcon:
         # reset break if it is active during check in
         self.break_active = False
         self.update_icon()
-        
+
+        # Change icon to white before action starts
+        timenow = datetime.now()
+        self.icon.title = _("Starting check-in...")
+        self.update_image(timenow.strftime("%H:%M"), "orange")
+
         # Read vault to check if headless mode is enabled
         with open(self.vault) as f:
             data = json.load(f)
@@ -328,7 +333,12 @@ class WorkdayTrayIcon:
         # reset break if it is active during check out
         self.break_active = False
         self.update_icon()
-        
+
+        # Change icon to white before action starts
+        timenow = datetime.now()
+        self.icon.title = _("Starting check-in...")
+        self.update_image(timenow.strftime("%H:%M"), "orange")
+                
         # Read vault to check if headless mode is enabled
         with open(self.vault) as f:
             data = json.load(f)
