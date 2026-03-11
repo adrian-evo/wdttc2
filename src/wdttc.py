@@ -2,9 +2,11 @@
 All tasks entry point, mainly for pyinstaller to create exe file.
 """
 import sys
+import os
 import ctypes
 import importlib
 import json
+import subprocess
 from devdata_path import *
 from time import sleep
 from os.path import exists
@@ -23,6 +25,23 @@ def main():
         arg = 'runtrayicon'
     else:
         arg = sys.argv[1]
+
+    # When running tray icon, check for wdttc.ini; launch setup if missing
+    if arg == 'runtrayicon':
+        if getattr(sys, 'frozen', False):
+            app_path = os.path.dirname(sys.executable)
+        else:
+            app_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        ini_file = os.path.join(app_path, 'wdttc.ini')
+        if not exists(ini_file):
+            setup_bat = os.path.join(app_path, 'setup-wdttc.bat')
+            subprocess.Popen(
+                ['cmd', '/c', setup_bat],
+                cwd=app_path,
+                creationflags=subprocess.CREATE_NEW_CONSOLE
+            )
+            sys.exit(0)
+
     with open(devdata_path('env.json')) as f:
         envdata = json.load(f)
     with open(devdata_path(envdata['VAULT_FILE'])) as f:
